@@ -35,3 +35,5 @@ Para un tiro vertical, la fórmula que predice la **altura máxima** es:
 
 ```math
 h_{max} = \frac{v_0^2}{2g}
+
+
