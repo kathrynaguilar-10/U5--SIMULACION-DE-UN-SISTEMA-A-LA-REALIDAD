@@ -1,0 +1,132 @@
+import pygame
+import sys
+import random
+import math
+
+# --- Inicialización ---
+pygame.init()
+
+# Configuración de la pantalla
+W, H = 900, 600
+screen = pygame.display.set_mode((W, H))
+pygame.display.set_caption("Simulador de Gravedad - Modelo MRUA")
+clock = pygame.time.Clock()
+
+# Fuentes
+try:
+    fuente_titulo = pygame.font.SysFont("segoeui", 28, bold=True)
+    fuente_texto = pygame.font.SysFont("segoeui", 18)
+    fuente_pequena = pygame.font.SysFont("segoeui", 14)
+except:
+    fuente_titulo = pygame.font.Font(None, 32)
+    fuente_texto = pygame.font.Font(None, 24)
+    fuente_pequena = pygame.font.Font(None, 18)
+
+# --- Datos del Modelo ---
+GRAVEDADES = {"Tierra": 9.8, "Marte": 3.7, "Luna": 1.6}
+planeta = "Tierra"
+v0 = 6.0                      # Velocidad inicial (m/s)
+ESCALA = 35                   # Píxeles por metro (ajustado para que quepa en pantalla)
+g = GRAVEDADES[planeta] * ESCALA
+
+# --- Estado del Jugador ---
+suelo_y = 500
+x, y = W // 2, suelo_y
+vy = 0
+en_suelo = True
+salto_maximo_actual = suelo_y
+color_personaje = (255, 215, 0) # Dorado
+
+# --- Fondo de Estrellas ---
+estrellas = [(random.randint(0, W), random.randint(0, H-100), random.randint(1, 3)) for _ in range(100)]
+
+def dibujar_panel(surface, x, y, w, h, color_fondo, alpha=180):
+    """Función auxiliar para dibujar paneles semitransparentes"""
+    panel = pygame.Surface((w, h), pygame.SRCALPHA)
+    pygame.draw.rect(panel, (*color_fondo, alpha), panel.get_rect(), border_radius=10)
+    pygame.draw.rect(panel, (255, 255, 255, 50), panel.get_rect(), width=2, border_radius=10)
+    surface.blit(panel, (x, y))
+
+# --- Bucle Principal ---
+while True:
+    for e in pygame.event.get():
+        if e.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+        if e.type == pygame.KEYDOWN:
+            if e.key == pygame.K_SPACE and en_suelo:
+                vy = -v0 * ESCALA
+                en_suelo = False
+                salto_maximo_actual = suelo_y
+            if e.key == pygame.K_1: planeta = "Tierra"
+            if e.key == pygame.K_2: planeta = "Marte"
+            if e.key == pygame.K_3: planeta = "Luna"
+            if e.key == pygame.K_UP:   v0 += 0.5
+            if e.key == pygame.K_DOWN: v0 = max(1, v0 - 0.5)
+            # Actualizar gravedad si cambia el planeta
+            g = GRAVEDADES[planeta] * ESCALA
+
+    dt = clock.tick(60) / 1000.0
+
+    # --- Integración del Modelo Matemático ---
+    if not en_suelo:
+        vy += g * dt
+        y  += vy * dt
+        
+        # Registrar la altura máxima alcanzada
+        if y < salto_maximo_actual:
+            salto_maximo_actual = y
+
+        # Colisión con el suelo
+        if y >= suelo_y:
+            y = suelo_y
+            vy = 0
+            en_suelo = True
+
+    # --- DIBUJO ---
+    # 1. Fondo espacial
+    screen.fill((15, 15, 30)) 
+    for estrella in estrellas:
+        pygame.draw.circle(screen, (200, 200, 200), (estrella[0], estrella[1]), estrella[2])
+
+    # 2. Suelo (Superficie planetaria)
+    pygame.draw.rect(screen, (40, 50, 70), (0, suelo_y, W, H - suelo_y))
+    pygame.draw.line(screen, (100, 150, 255), (0, suelo_y), (W, suelo_y), 3)
+
+    # 3. Línea de altura máxima (Predicción Teórica)
+    h_max_teorica_m = (v0**2) / (2 * GRAVEDADES[planeta])
+    y_teorica = suelo_y - (h_max_teorica_m * ESCALA)
+    pygame.draw.line(screen, (255, 100, 100), (0, y_teorica), (W, y_teorica), 2)
+    texto_linea = fuente_pequena.render("Predicción Teórica (Altura Máx)", True, (255, 100, 100))
+    screen.blit(texto_linea, (10, y_teorica - 20))
+
+    # 4. Personaje (Astronauta simple)
+    # Cuerpo
+    pygame.draw.rect(screen, (200, 200, 200), (x - 12, y - 35, 24, 35), border_radius=5)
+    # Visor
+    pygame.draw.circle(screen, (50, 150, 255), (x, y - 45), 12)
+    # Mochila
+    pygame.draw.rect(screen, (100, 100, 100), (x - 18, y - 30, 8, 20), border_radius=3)
+    pygame.draw.rect(screen, (100, 100, 100), (x + 10, y - 30, 8, 20), border_radius=3)
+
+    # 5. Interfaz Gráfica (UI)
+    dibujar_panel(screen, 20, 20, 320, 180, (30, 30, 50))
+    
+    # Textos UI
+    screen.blit(fuente_titulo.render("Simulador MRUA", True, (255, 255, 255)), (35, 30))
+    
+    color_planeta = (100, 255, 100) if planeta == "Tierra" else (255, 150, 100) if planeta == "Marte" else (200, 200, 255)
+    screen.blit(fuente_texto.render(f"Planeta: {planeta}", True, color_planeta), (35, 70))
+    screen.blit(fuente_texto.render(f"Gravedad (g): {GRAVEDADES[planeta]} m/s²", True, (200, 200, 200)), (35, 95))
+    screen.blit(fuente_texto.render(f"Vel. inicial (v₀): {v0:.1f} m/s", True, (200, 200, 200)), (35, 120))
+    
+    # Altura actual vs teórica
+    altura_actual_m = max(0, (suelo_y - y) / ESCALA)
+    screen.blit(fuente_texto.render(f"Altura actual: {altura_actual_m:.2f} m", True, (255, 215, 0)), (35, 150))
+
+    # Instrucciones en la parte inferior
+    dibujar_panel(screen, 20, H - 60, W - 40, 40, (30, 30, 50), alpha=150)
+    instrucciones = "ESPACIO: Saltar  |  1: Tierra  |  2: Marte  |  3: Luna  |  FLECHAS ↑↓: Cambiar Velocidad"
+    screen.blit(fuente_pequena.render(instrucciones, True, (150, 150, 150)), (40, H - 48))
+
+    pygame.display.flip()
