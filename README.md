@@ -37,6 +37,8 @@ Para un tiro vertical, la fórmula que predice la **altura máxima** es:
 h_{max} = \frac{v_0^2}{2g}
 
 
+
+
 ## ⚙️ 2. Construcción y programación del modelo
 
 Para llevar el modelo físico a la pantalla, no podemos usar el cálculo continuo perfecto, sino que debemos simularlo mediante **métodos numéricos** (integración paso a paso) dentro del bucle del juego (Game Loop).
