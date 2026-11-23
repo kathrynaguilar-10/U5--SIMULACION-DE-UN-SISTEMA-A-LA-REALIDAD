@@ -28,7 +28,7 @@ Para construir el modelo matemático que gobierna el juego, se han identificado 
 *   **`vy` (Velocidad vertical):** La velocidad del personaje en un instante `t`. Disminuye mientras sube y aumenta (en dirección negativa) mientras cae.
 *   **`h_max` (Altura máxima):** El punto más alto que alcanza el personaje.
 
- 1.3. Recolección de datos y comportamiento esperado
+ ###1.3. Recolección de datos y comportamiento esperado
 Para validar que el juego funciona correctamente, necesitamos datos de referencia. El comportamiento esperado está dictado por las leyes de la cinemática (ecuaciones del MRUA).
 
 Para un tiro vertical, la fórmula que predice la **altura máxima** es:
@@ -38,14 +38,3 @@ h_{max} = \frac{v_0^2}{2g}
 
 
 
-
-## ⚙️ 2. Construcción y programación del modelo
-
-Para llevar el modelo físico a la pantalla, no podemos usar el cálculo continuo perfecto, sino que debemos simularlo mediante **métodos numéricos** (integración paso a paso) dentro del bucle del juego (Game Loop).
-
-### 2.1. Ecuaciones del modelo matemático
-El movimiento del astronauta se rige por las ecuaciones del Movimiento Rectilíneo Uniformemente Acelerado (MRUA). Para el eje vertical (Y), donde actúa la gravedad, tenemos:
-
-1. **Velocidad en función del tiempo:**
-   ```math
-   v_y(t) = v_{y0} - g \cdot t
