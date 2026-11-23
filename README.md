@@ -36,7 +36,6 @@ Para un tiro vertical, la fórmula que predice la **altura máxima** es:
 ```math
 h_{max} = \frac{v_0^2}{2g}
 
----
 
 ## ⚙️ 2. Construcción y programación del modelo
 
@@ -48,4 +47,3 @@ El movimiento del astronauta se rige por las ecuaciones del Movimiento Rectilín
 1. **Velocidad en función del tiempo:**
    ```math
    v_y(t) = v_{y0} - g \cdot t
-
