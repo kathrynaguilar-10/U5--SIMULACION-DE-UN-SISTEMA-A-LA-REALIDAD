@@ -28,7 +28,7 @@ Para construir el modelo matemático que gobierna el juego, se han identificado 
 *   **`vy` (Velocidad vertical):** La velocidad del personaje en un instante `t`. Disminuye mientras sube y aumenta (en dirección negativa) mientras cae.
 *   **`h_max` (Altura máxima):** El punto más alto que alcanza el personaje.
 
-### 1.3. Recolección de datos y comportamiento esperado
+ 1.3. Recolección de datos y comportamiento esperado
 Para validar que el juego funciona correctamente, necesitamos datos de referencia. El comportamiento esperado está dictado por las leyes de la cinemática (ecuaciones del MRUA).
 
 Para un tiro vertical, la fórmula que predice la **altura máxima** es:
